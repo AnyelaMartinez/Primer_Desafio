@@ -40,37 +40,54 @@ using namespace std;
 unsigned char* loadPixels(QString input, int &width, int &height);
 bool exportImage(unsigned char* pixelData, int width,int height, QString archivoSalida);
 unsigned int* loadSeedMasking(const char* nombreArchivo, int &seed, int &n_pixels);
+//agregando otras funciones
+
 
 int main()
 {
     // Definición de rutas de archivo de entrada (imagen original) y salida (imagen modificada)
-    QString archivoEntrada = "I_O.bmp";
-    QString archivoSalida = "I_D.bmp";
+    QString archivoEntrada = "I_D.bmp";
+    QString archivoSalida = "I_O.bmp";
+    //**Agregando imagenes necesarias**
+    QString imagenM = "IM.bmp";
+    QString Mascara = "M.bmp";
 
     // Variables para almacenar las dimensiones de la imagen
-    int height = 0;
-    int width = 0;
+    int Dheight = 0;
+    int Dwidth = 0;
+    int IMheight = 0;
+    int IMwidth = 0;
+    int Mheight = 0;
+    int Mwidth = 0;
+
 
     // Carga la imagen BMP en memoria dinámica y obtiene ancho y alto
-    unsigned char *pixelData = loadPixels(archivoEntrada, width, height);
+    unsigned char *pixelID = loadPixels(archivoEntrada, Dwidth, Dheight);
+    unsigned char *pixelIM = loadPixels(imagenM, IMwidth, IMheight);
+    unsigned char *pixelM = loadPixels(Mascara, Mwidth, Mheight);
 
     // Simula una modificación de la imagen asignando valores RGB incrementales
     // (Esto es solo un ejemplo de manipulación artificial)
-    for (int i = 0; i < width * height * 3; i += 3) {
-        pixelData[i] = i;     // Canal rojo
-        pixelData[i + 1] = i; // Canal verde
-        pixelData[i + 2] = i; // Canal azul
+    for (int i = 0; i < Dwidth * Dheight * 3; i += 3) {
+        pixelID[i] = i;     // Canal rojo
+        pixelID[i + 1] = i; // Canal verde
+        pixelID[i + 2] = i; // Canal azul
+
     }
 
     // Exporta la imagen modificada a un nuevo archivo BMP
-    bool exportI = exportImage(pixelData, width, height, archivoSalida);
+    bool exportI = exportImage(pixelID, Dwidth, Dheight, archivoSalida);
 
     // Muestra si la exportación fue exitosa (true o false)
     cout << exportI << endl;
 
     // Libera la memoria usada para los píxeles
-    delete[] pixelData;
-    pixelData = nullptr;
+    delete[] pixelID;
+    pixelID = nullptr;
+    delete[] pixelIM;
+    pixelIM = nullptr;
+    delete[] pixelM;
+    pixelM = nullptr;
 
     // Variables para almacenar la semilla y el número de píxeles leídos del archivo de enmascaramiento
     int seed = 0;
@@ -97,7 +114,8 @@ int main()
 }
 
 
-unsigned char* loadPixels(QString input, int &width, int &height){
+unsigned char* loadPixels(QString input, int &width, int &height)
+{
 /*
  * @brief Carga una imagen BMP desde un archivo y extrae los datos de píxeles en formato RGB.
  *
@@ -148,7 +166,8 @@ unsigned char* loadPixels(QString input, int &width, int &height){
     return pixelData;
 }
 
-bool exportImage(unsigned char* pixelData, int width,int height, QString archivoSalida){
+bool exportImage(unsigned char* pixelData, int width,int height, QString archivoSalida)
+{
 /*
  * @brief Exporta una imagen en formato BMP a partir de un arreglo de píxeles en formato RGB.
  *
@@ -193,7 +212,8 @@ bool exportImage(unsigned char* pixelData, int width,int height, QString archivo
 
 }
 
-unsigned int* loadSeedMasking(const char* nombreArchivo, int &seed, int &n_pixels){
+unsigned int* loadSeedMasking(const char* nombreArchivo, int &seed, int &n_pixels)
+{
 /*
  * @brief Carga la semilla y los resultados del enmascaramiento desde un archivo de texto.
  *
@@ -269,10 +289,23 @@ unsigned int* loadSeedMasking(const char* nombreArchivo, int &seed, int &n_pixel
 }
 
 
+// Para hacer operaciones XOR
+unsigned char* OperatorXOR(){
 
+    return 0;
+}
 
+// Para rotar bits
+unsigned char* Rbits(){
 
+    return 0;
+}
 
+// Para desplazar bit
+unsigned char* Dbits(){
+
+    return 0;
+}
 
 
 
