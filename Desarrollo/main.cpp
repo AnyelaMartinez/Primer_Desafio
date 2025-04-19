@@ -49,7 +49,7 @@ int main()
     QString archivoEntrada = "I_D.bmp";
     QString archivoSalida = "I_O.bmp";
     //**Agregando imagenes necesarias**
-    QString imagenM = "IM.bmp";
+    QString imagenM = "I_M.bmp";
     QString Mascara = "M.bmp";
 
     // Variables para almacenar las dimensiones de la imagen
@@ -60,6 +60,7 @@ int main()
     int IMwidth = 0;
     int Mheight = 0;
     int Mwidth = 0;
+
     //**dirección de rotaciones
 
 
@@ -77,13 +78,18 @@ int main()
 
     }*/
 
-
+    //Devolviendo la primera vez la imagen con XOR
+    unsigned char* imageAXOR = OperatorXOR(pixelID, pixelIM, Dwidth, Dheight);
 
     // Exporta la imagen modificada a un nuevo archivo BMP
     bool exportI = exportImage(pixelID, Dwidth, Dheight, archivoSalida);
 
+    //exportando el primer resultado
+    bool exportIX = exportImage(imageAXOR, Dwidth, Dheight, "resultado_XOR.bmp");
+
     // Muestra si la exportación fue exitosa (true o false)
     cout << exportI << endl;
+    cout << exportIX << endl;
 
     // Libera la memoria usada para los píxeles
     delete[] pixelID;
@@ -92,6 +98,8 @@ int main()
     pixelIM = nullptr;
     delete[] pixelM;
     pixelM = nullptr;
+    delete[] imageAXOR;
+    imageAXOR = nullptr;
 
     // Variables para almacenar la semilla y el número de píxeles leídos del archivo de enmascaramiento
     int seed = 0;
@@ -119,8 +127,7 @@ int main()
 
 
 unsigned char* loadPixels(QString input, int &width, int &height)
-{
-/*
+{/*
  * @brief Carga una imagen BMP desde un archivo y extrae los datos de píxeles en formato RGB.
  *
  * Esta función utiliza la clase QImage de Qt para abrir una imagen en formato BMP, convertirla al
@@ -171,8 +178,7 @@ unsigned char* loadPixels(QString input, int &width, int &height)
 }
 
 bool exportImage(unsigned char* pixelData, int width,int height, QString archivoSalida)
-{
-/*
+{/*
  * @brief Exporta una imagen en formato BMP a partir de un arreglo de píxeles en formato RGB.
  *
  * Esta función crea una imagen de tipo QImage utilizando los datos contenidos en el arreglo dinámico
@@ -296,7 +302,7 @@ unsigned int* loadSeedMasking(const char* nombreArchivo, int &seed, int &n_pixel
 // Para hacer operaciones XOR
 unsigned char* OperatorXOR( unsigned char *archivoEntrada, unsigned char *imagenM, int width, int height ){
 
-    unsigned char* imageAXOR = new unsigned char[width*height];
+    unsigned char* imageAXOR = new unsigned char[width*height*3];
 
     for (int i = 0; i < width * height * 3; i ++) {
         imageAXOR[i] = imagenM[i] ^ archivoEntrada[i];
@@ -305,8 +311,15 @@ unsigned char* OperatorXOR( unsigned char *archivoEntrada, unsigned char *imagen
     return imageAXOR;
 }
 
+//Usando la mascara
+
+unsigned char *ApliMask(unsigned *imagen, unsigned *imagenM, int seed,   ){
+
+    return 0;
+}
+
 // Para rotar bits
-unsigned char* Rbits( unsigned char *archivoEntrada, int width, int height, int dir){
+/*unsigned char* Rbits( unsigned char *archivoEntrada, int width, int height, int dir){
 
     unsigned char* imageAR = new unsigned char[width*height];
     for (int i = 0; i < width * height * 3; i ++) {
@@ -321,13 +334,13 @@ unsigned char* Rbits( unsigned char *archivoEntrada, int width, int height, int 
     }
 
     return imageAR;
-}
+}*/
 
 // Para desplazar bit
-unsigned char* Dbits(){
+/*unsigned char* Dbits(){
 
     return 0;
-}
+}*/
 
 
 
