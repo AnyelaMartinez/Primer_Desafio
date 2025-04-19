@@ -41,7 +41,7 @@ unsigned char* loadPixels(QString input, int &width, int &height);
 bool exportImage(unsigned char* pixelData, int width,int height, QString archivoSalida);
 unsigned int* loadSeedMasking(const char* nombreArchivo, int &seed, int &n_pixels);
 //agregando otras funciones
-
+unsigned char* OperatorXOR(unsigned char *archivoEntrada, unsigned char *imagenM, int width, int height);
 
 int main()
 {
@@ -55,10 +55,12 @@ int main()
     // Variables para almacenar las dimensiones de la imagen
     int Dheight = 0;
     int Dwidth = 0;
+
     int IMheight = 0;
     int IMwidth = 0;
     int Mheight = 0;
     int Mwidth = 0;
+    //**dirección de rotaciones
 
 
     // Carga la imagen BMP en memoria dinámica y obtiene ancho y alto
@@ -68,12 +70,14 @@ int main()
 
     // Simula una modificación de la imagen asignando valores RGB incrementales
     // (Esto es solo un ejemplo de manipulación artificial)
-    for (int i = 0; i < Dwidth * Dheight * 3; i += 3) {
+    /*for (int i = 0; i < Dwidth * Dheight * 3; i += 3) {
         pixelID[i] = i;     // Canal rojo
         pixelID[i + 1] = i; // Canal verde
         pixelID[i + 2] = i; // Canal azul
 
-    }
+    }*/
+
+
 
     // Exporta la imagen modificada a un nuevo archivo BMP
     bool exportI = exportImage(pixelID, Dwidth, Dheight, archivoSalida);
@@ -290,15 +294,33 @@ unsigned int* loadSeedMasking(const char* nombreArchivo, int &seed, int &n_pixel
 
 
 // Para hacer operaciones XOR
-unsigned char* OperatorXOR(){
+unsigned char* OperatorXOR( unsigned char *archivoEntrada, unsigned char *imagenM, int width, int height ){
 
-    return 0;
+    unsigned char* imageAXOR = new unsigned char[width*height];
+
+    for (int i = 0; i < width * height * 3; i ++) {
+        imageAXOR[i] = imagenM[i] ^ archivoEntrada[i];
+    }
+
+    return imageAXOR;
 }
 
 // Para rotar bits
-unsigned char* Rbits(){
+unsigned char* Rbits( unsigned char *archivoEntrada, int width, int height, int dir){
 
-    return 0;
+    unsigned char* imageAR = new unsigned char[width*height];
+    for (int i = 0; i < width * height * 3; i ++) {
+        if(dir==1)
+        {
+         imageAR [i] = *archivoEntrada<<3;
+        }
+        else
+        {
+          imageAR [i] = *archivoEntrada>>3;
+        }
+    }
+
+    return imageAR;
 }
 
 // Para desplazar bit
