@@ -42,6 +42,7 @@ bool exportImage(unsigned char* pixelData, int width,int height, QString archivo
 unsigned int* loadSeedMasking(const char* nombreArchivo, int &seed, int &n_pixels);
 //agregando otras funciones
 unsigned char* OperatorXOR(unsigned char *archivoEntrada, unsigned char *imagenM, int width, int height);
+unsigned char* ApliMask(unsigned char *imagenT, unsigned char *Mascara, int seed,int Mwidth, int Mheight, int width, int height);
 
 int main()
 {
@@ -60,7 +61,6 @@ int main()
     int IMwidth = 0;
     int Mheight = 0;
     int Mwidth = 0;
-
     //**dirección de rotaciones
 
 
@@ -68,6 +68,7 @@ int main()
     unsigned char *pixelID = loadPixels(archivoEntrada, Dwidth, Dheight);
     unsigned char *pixelIM = loadPixels(imagenM, IMwidth, IMheight);
     unsigned char *pixelM = loadPixels(Mascara, Mwidth, Mheight);
+
 
     // Simula una modificación de la imagen asignando valores RGB incrementales
     // (Esto es solo un ejemplo de manipulación artificial)
@@ -77,29 +78,6 @@ int main()
         pixelID[i + 2] = i; // Canal azul
 
     }*/
-
-    //Devolviendo la primera vez la imagen con XOR
-    unsigned char* imageAXOR = OperatorXOR(pixelID, pixelIM, Dwidth, Dheight);
-
-    // Exporta la imagen modificada a un nuevo archivo BMP
-    bool exportI = exportImage(pixelID, Dwidth, Dheight, archivoSalida);
-
-    //exportando el primer resultado
-    bool exportIX = exportImage(imageAXOR, Dwidth, Dheight, "resultado_XOR.bmp");
-
-    // Muestra si la exportación fue exitosa (true o false)
-    cout << exportI << endl;
-    cout << exportIX << endl;
-
-    // Libera la memoria usada para los píxeles
-    delete[] pixelID;
-    pixelID = nullptr;
-    delete[] pixelIM;
-    pixelIM = nullptr;
-    delete[] pixelM;
-    pixelM = nullptr;
-    delete[] imageAXOR;
-    imageAXOR = nullptr;
 
     // Variables para almacenar la semilla y el número de píxeles leídos del archivo de enmascaramiento
     int seed = 0;
@@ -122,10 +100,48 @@ int main()
         maskingData = nullptr;
     }
 
+    //Devolviendo la primera vez la imagen con XOR
+    unsigned char* imageAXOR = OperatorXOR(pixelID, pixelIM, Dwidth, Dheight);
+
+    // Exporta la imagen modificada a un nuevo archivo BMP
+    bool exportI = exportImage(pixelID, Dwidth, Dheight, archivoSalida);
+
+    unsigned char* txtAMask = ApliMask(imageAXOR, pixelM, seed, Mheight, Mwidth, Dheight, Dwidth);
+
+    //exportando el primer resultado
+    bool exportIX = exportImage(imageAXOR, Dwidth, Dheight, "resulAXOR.bmp");
+
+    // Muestra si la exportación fue exitosa (true o false)
+    cout << exportI << endl;
+    cout << exportIX << endl;
+
+
+    // despues de aplicar mascara
+
+    for (int i = 0; i < Mwidth * Mheight * 3; i += 3) {
+        cout << "Pixel " << i / 3 << ": ("
+             << static_cast<int>(txtAMask[i]) << ", "
+             << static_cast<int>(txtAMask[i + 1]) << ", "
+             << static_cast<int>(txtAMask[i + 2]) << ")" << endl;
+    }
+
+    // Libera la memoria usada para los píxeles
+    delete[] pixelID;
+    pixelID = nullptr;
+    delete[] pixelIM;
+    pixelIM = nullptr;
+    delete[] pixelM;
+    pixelM = nullptr;
+    delete[] imageAXOR;
+    imageAXOR = nullptr;
+    delete [] txtAMask;
+    txtAMask = nullptr;
+
+
     return 0; // Fin del programa
 }
 
-
+//NO TOCAR
 unsigned char* loadPixels(QString input, int &width, int &height)
 {/*
  * @brief Carga una imagen BMP desde un archivo y extrae los datos de píxeles en formato RGB.
@@ -297,8 +313,9 @@ unsigned int* loadSeedMasking(const char* nombreArchivo, int &seed, int &n_pixel
     // Retornar el puntero al arreglo con los datos RGB
     return RGB;
 }
+//FIN NO TOCAR
 
-
+//**MIS FUNCIONES**
 // Para hacer operaciones XOR
 unsigned char* OperatorXOR( unsigned char *archivoEntrada, unsigned char *imagenM, int width, int height ){
 
@@ -311,11 +328,32 @@ unsigned char* OperatorXOR( unsigned char *archivoEntrada, unsigned char *imagen
     return imageAXOR;
 }
 
+
 //Usando la mascara
+unsigned char* ApliMask(unsigned char *imagenT, unsigned char *Mascara, int seed,int Mwidth, int Mheight, int width, int height){
 
-unsigned char *ApliMask(unsigned *imagen, unsigned *imagenM, int seed,   ){
+    int MSize = Mwidth * Mheight * 3;
 
-    return 0;
+    // Para el resultado de aplicar la mascara
+    unsigned char* txtAMask = new unsigned char[MSize];
+
+    for (int i = 0; i < MSize; i++)
+    {
+        int PImagenT = seed + i;
+
+        if (PImagenT < width*height*3)
+        {
+            int SumaPx = imagenT[PImagenT]+ Mascara[i];
+
+        txtAMask[i] = SumaPx;
+        }
+        else
+        {
+            txtAMask[i] = 0;
+        }
+    }
+
+    return txtAMask;
 }
 
 // Para rotar bits
