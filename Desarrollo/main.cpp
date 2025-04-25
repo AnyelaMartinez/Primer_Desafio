@@ -43,6 +43,8 @@ unsigned int* loadSeedMasking(const char* nombreArchivo, int &seed, int &n_pixel
 //agregando otras funciones
 unsigned char* OperatorXOR(unsigned char *archivoEntrada, unsigned char *imagenM, int width, int height);
 unsigned char* ApliMask(unsigned char *imagenT, unsigned char *Mascara, int seed,int Mwidth, int Mheight, int width, int height);
+unsigned char* Dbits( unsigned char *archivoEntrada, int width, int height, int cant, int dir);
+unsigned char* Rbits( unsigned char *archivoEntrada, int width, int height, int cant, int dir);
 
 int main()
 {
@@ -61,6 +63,9 @@ int main()
     int IMwidth = 0;
     int Mheight = 0;
     int Mwidth = 0;
+
+    int cant = 0;
+    int dir = 1;
     //**dirección de rotaciones
 
 
@@ -106,7 +111,14 @@ int main()
     // Exporta la imagen modificada a un nuevo archivo BMP
     bool exportI = exportImage(pixelID, Dwidth, Dheight, archivoSalida);
 
+    //Regresa el txt despues del enmascaramiento para comparar
     unsigned char* txtAMask = ApliMask(imageAXOR, pixelM, seed, Mheight, Mwidth, Dheight, Dwidth);
+
+    //Regresa imagen con desplazamiento
+    unsigned char* imageAD = Dbits(imageAXOR, Dwidth, Dheight, cant, dir);
+
+    //Regresa imagen con rotación
+    unsigned char* imageAR = Rbits(imageAXOR, Dwidth, Dheight, cant, dir);
 
     //exportando el primer resultado
     bool exportIX = exportImage(imageAXOR, Dwidth, Dheight, "resulAXOR.bmp");
@@ -136,6 +148,10 @@ int main()
     imageAXOR = nullptr;
     delete [] txtAMask;
     txtAMask = nullptr;
+    delete[] imageAD;
+    imageAD = nullptr;
+    delete[] imageAR;
+    imageAR = nullptr;
 
 
     return 0; // Fin del programa
@@ -356,29 +372,50 @@ unsigned char* ApliMask(unsigned char *imagenT, unsigned char *Mascara, int seed
     return txtAMask;
 }
 
-// Para rotar bits
-/*unsigned char* Rbits( unsigned char *archivoEntrada, int width, int height, int dir){
+//Comparando txtx
 
-    unsigned char* imageAR = new unsigned char[width*height];
+
+// Para desplazar bits
+unsigned char* Dbits( unsigned char *archivoEntrada, int width, int height, int cant, int dir){
+
+
+    unsigned char* imageAD = new unsigned char[width*height*3];
+
     for (int i = 0; i < width * height * 3; i ++) {
-        if(dir==1)
+
+        if (dir == 1)
         {
-         imageAR [i] = *archivoEntrada<<3;
+        imageAD [i] = *archivoEntrada>>cant;
         }
         else
         {
-          imageAR [i] = *archivoEntrada>>3;
+        imageAD [i] = *archivoEntrada<<cant;
+        }
+    }
+
+    return imageAD;
+}
+
+// Para rotar bit
+unsigned char* Rbits( unsigned char *archivoEntrada, int width, int height, int cant, int dir){
+
+
+    unsigned char* imageAR = new unsigned char[width*height*3];
+
+    for (int i = 0; i < width * height * 3; i ++) {
+
+        if (dir == 1)
+        {
+            imageAR[i]=(archivoEntrada[i]>>cant) | (archivoEntrada[i] << (8 - cant));
+        }
+        else
+        {
+            imageAR[i]=(archivoEntrada[i]<<cant) | (archivoEntrada[i] >> (8 - cant));
         }
     }
 
     return imageAR;
-}*/
-
-// Para desplazar bit
-/*unsigned char* Dbits(){
-
-    return 0;
-}*/
+}
 
 
 
