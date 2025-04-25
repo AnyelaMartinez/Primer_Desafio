@@ -45,48 +45,34 @@ unsigned char* OperatorXOR(unsigned char *archivoEntrada, unsigned char *imagenM
 unsigned char* ApliMask(unsigned char *imagenT, unsigned char *Mascara, int seed,int Mwidth, int Mheight, int width, int height);
 unsigned char* Dbits( unsigned char *archivoEntrada, int width, int height, int cant, int dir);
 unsigned char* Rbits( unsigned char *archivoEntrada, int width, int height, int cant, int dir);
+bool compareTXT (const char *txtAMask, const char * txtBase, int Mwidth, int Mheight);
 
 int main()
 {
-    // Definición de rutas de archivo de entrada (imagen original) y salida (imagen modificada)
+    // Entrando imagenes
     QString archivoEntrada = "I_D.bmp";
-    QString archivoSalida = "I_O.bmp";
-    //**Agregando imagenes necesarias**
     QString imagenM = "I_M.bmp";
     QString Mascara = "M.bmp";
+    QString archivoSalida = "I_O.bmp";
 
-    // Variables para almacenar las dimensiones de la imagen
-    int Dheight = 0;
-    int Dwidth = 0;
-
-    int IMheight = 0;
-    int IMwidth = 0;
+    // Variables para almacenar las dimensiones de la imagen y mascara
+    int height = 0;
+    int width = 0;
     int Mheight = 0;
     int Mwidth = 0;
-
-    int cant = 0;
-    int dir = 1;
-    //**dirección de rotaciones
-
-
-    // Carga la imagen BMP en memoria dinámica y obtiene ancho y alto
-    unsigned char *pixelID = loadPixels(archivoEntrada, Dwidth, Dheight);
-    unsigned char *pixelIM = loadPixels(imagenM, IMwidth, IMheight);
-    unsigned char *pixelM = loadPixels(Mascara, Mwidth, Mheight);
-
-
-    // Simula una modificación de la imagen asignando valores RGB incrementales
-    // (Esto es solo un ejemplo de manipulación artificial)
-    /*for (int i = 0; i < Dwidth * Dheight * 3; i += 3) {
-        pixelID[i] = i;     // Canal rojo
-        pixelID[i + 1] = i; // Canal verde
-        pixelID[i + 2] = i; // Canal azul
-
-    }*/
 
     // Variables para almacenar la semilla y el número de píxeles leídos del archivo de enmascaramiento
     int seed = 0;
     int n_pixels = 0;
+
+    //Datos que aun no se como llenar
+    int cant = 0;
+    int dir = 1;
+
+    // Carga la imagen BMP en memoria dinámica y obtiene ancho y alto
+    unsigned char *pixelID = loadPixels(archivoEntrada, width, height);
+    unsigned char *pixelIM = loadPixels(imagenM, width, height);
+    unsigned char *pixelM = loadPixels(Mascara, Mwidth, Mheight);
 
     // Carga los datos de enmascaramiento desde un archivo .txt (semilla + valores RGB)
     unsigned int *maskingData = loadSeedMasking("M1.txt", seed, n_pixels);
@@ -99,29 +85,24 @@ int main()
              << maskingData[i + 2] << ")" << endl;
     }
 
-    // Libera la memoria usada para los datos de enmascaramiento
-    if (maskingData != nullptr){
-        delete[] maskingData;
-        maskingData = nullptr;
-    }
 
-    //Devolviendo la primera vez la imagen con XOR
-    unsigned char* imageAXOR = OperatorXOR(pixelID, pixelIM, Dwidth, Dheight);
+    //Operaciones XOR
+    unsigned char* imageAXOR = OperatorXOR(pixelID, pixelIM, width, height);
 
-    // Exporta la imagen modificada a un nuevo archivo BMP
-    bool exportI = exportImage(pixelID, Dwidth, Dheight, archivoSalida);
-
-    //Regresa el txt despues del enmascaramiento para comparar
-    unsigned char* txtAMask = ApliMask(imageAXOR, pixelM, seed, Mheight, Mwidth, Dheight, Dwidth);
+    //Regresa el txt despues de una operación para comparar
+    unsigned char* txtAMask = ApliMask(pixelID, pixelM, seed, Mheight, Mwidth, height, width);
 
     //Regresa imagen con desplazamiento
-    unsigned char* imageAD = Dbits(imageAXOR, Dwidth, Dheight, cant, dir);
+    unsigned char* imageAD = Dbits(pixelID, width, height, cant, dir);
 
     //Regresa imagen con rotación
-    unsigned char* imageAR = Rbits(imageAXOR, Dwidth, Dheight, cant, dir);
+    unsigned char* imageAR = Rbits(pixelID, width, height, cant, dir);
 
     //exportando el primer resultado
-    bool exportIX = exportImage(imageAXOR, Dwidth, Dheight, "resulAXOR.bmp");
+    bool exportIX = exportImage(pixelID, width, height, "resulAXOR.bmp");
+
+    // Exporta la imagen modificada a un nuevo archivo BMP
+    bool exportI = exportImage(pixelID, width, height, archivoSalida);
 
     // Muestra si la exportación fue exitosa (true o false)
     cout << exportI << endl;
@@ -137,7 +118,7 @@ int main()
              << static_cast<int>(txtAMask[i + 2]) << ")" << endl;
     }
 
-    // Libera la memoria usada para los píxeles
+    // Bloque que libera toda la memoria usada
     delete[] pixelID;
     pixelID = nullptr;
     delete[] pixelIM;
@@ -152,7 +133,11 @@ int main()
     imageAD = nullptr;
     delete[] imageAR;
     imageAR = nullptr;
-
+    // Libera la memoria usada para los datos de enmascaramiento
+    if (maskingData != nullptr){
+        delete[] maskingData;
+        maskingData = nullptr;
+    }
 
     return 0; // Fin del programa
 }
@@ -344,7 +329,6 @@ unsigned char* OperatorXOR( unsigned char *archivoEntrada, unsigned char *imagen
     return imageAXOR;
 }
 
-
 //Usando la mascara
 unsigned char* ApliMask(unsigned char *imagenT, unsigned char *Mascara, int seed,int Mwidth, int Mheight, int width, int height){
 
@@ -372,8 +356,16 @@ unsigned char* ApliMask(unsigned char *imagenT, unsigned char *Mascara, int seed
     return txtAMask;
 }
 
-//Comparando txtx
-
+//Comparando txts
+bool compareTXT (const char *txtAMask, const char * txtBase, int Mwidth, int Mheight )
+{
+    for (int i = 0; i < (Mwidth*Mheight*3); i++) {
+        if (txtAMask[i] != txtBase[i]) {
+            return false;
+        }
+    }
+    return true;
+}
 
 // Para desplazar bits
 unsigned char* Dbits( unsigned char *archivoEntrada, int width, int height, int cant, int dir){
@@ -416,8 +408,17 @@ unsigned char* Rbits( unsigned char *archivoEntrada, int width, int height, int 
 
     return imageAR;
 }
+//**FIN FUNCIONES**
 
 
+// Simula una modificación de la imagen asignando valores RGB incrementales
+// (Esto es solo un ejemplo de manipulación artificial)
+/*for (int i = 0; i < Dwidth * Dheight * 3; i += 3) {
+        pixelID[i] = i;     // Canal rojo
+        pixelID[i + 1] = i; // Canal verde
+        pixelID[i + 2] = i; // Canal azul
+
+    }*/
 
 
 
