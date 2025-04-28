@@ -50,7 +50,7 @@ bool compareTXT (const char *txtAMask, const char * txtBase, int Mwidth, int Mhe
 int main()
 {
     // Entrando imagenes
-    QString archivoEntrada = "T6.bmp";
+    QString archivoEntrada = "T2.bmp";
     QString archivoSalida = "FINAL.bmp";
     QString imagenM = "I_M.bmp";
     QString Mascara = "M.bmp";
